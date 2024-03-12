@@ -1,17 +1,24 @@
 import requests
 import pandas as pd
 
-year = 2000
-round = 1
+def racersForYear(year):
+    round = 1
+    
+    for race in range(1, 20):
+        url = f'http://ergast.com/api/f1/{year}/{round}/results.json'
+        result = requests.get(url)
 
-url = f'http://ergast.com/api/f1/{year}/{round}/results.json'
+        data = result.json()
 
-result = requests.get(url)
+        race_results = data.get("MRData").get("RaceTable").get("Races")[0].get("Results")
 
-data = result.json()
+        drivers = []
+        for race in race_results:
+            driver = race.get("Driver")['driverId']
+            if driver in drivers:
+                continue
+            drivers.append(driver)
+        round+=1
+    return(list(drivers))
 
-race_results = data.get("MRData").get("RaceTable").get("Races")[0].get("Results")
-
-df = pd.DataFrame(race_results)
-
-df.to_csv('data.csv', index=False)
+print(racersForYear(2023))
